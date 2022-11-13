@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import collections
+import multiprocessing 
+import time
 from typing import List
 
 # Parameters
@@ -115,6 +117,15 @@ def match(data1_Names : pd.Series, data1_Ids : pd.Series, data2_Names : pd.Serie
 		exit(1)
 
 	return df_return
+
+#multiprocessamento usando pool
+if __name__ == '__main__':
+    
+    starttime = time.time()
+    pool = multiprocessing.Pool()
+    pool.map(match, range(0,10))
+    pool.close()
+    print('That took {} seconds'.format(time.time() - starttime))
 
 
 # Break names into tokens and try to find best match value
