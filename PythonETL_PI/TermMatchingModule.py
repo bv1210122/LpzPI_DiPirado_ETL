@@ -4,6 +4,7 @@ import collections
 import multiprocessing 
 import time
 from typing import List
+from joblib import Parallel, delayed
 
 # Parameters
 silent = False
@@ -27,40 +28,44 @@ def match(data1_Names : pd.Series, data1_Ids : pd.Series, data2_Names : pd.Serie
 	# PASS1 -> Check Trivial Case and Remove At the End
 	# This pass can remove abrupt computational time on next pass (expected)
 	# (Avoiding tokenization procedures for perfect matches)
-	for i in range(len(data1_Names)):
-		if not silent: print('Processing Term Matching [PASS 1]: '+str(i+1)+' of '+str(len(data1_Names))+'\r', end="")
-		for j in range(len(data2_Names)):
+	def PASS1(data1_Names):
+		
+		for i in range(len(data1_Names)):
+			if not silent: print('Processing Term Matching [PASS 1]: '+str(i+1)+' of '+str(len(data1_Names))+'\r', end="")
+			for j in range(len(data2_Names)):
 			# Case 1 - Trivial // Identical Strings
 			# (Premisse: There is only 1 possible; since names are unique) => FALSE
 			# But it can be controled, and the removal of matching pair (from origin) 
 			# will be done at the end of PASS 1
-			if(data1_Names[i]==data2_Names[j]): #Assuming they come: upper() and strip()
+				if(data1_Names[i]==data2_Names[j]): #Assuming they come: upper() and strip()
 				# Include 'match'
-				returnDataFrame.append([data1_Ids[i],
+					returnDataFrame.append([data1_Ids[i],
 									 data1_Names[i],
 									 data2_Ids[j],
 									 data2_Names[j],
 									 1])
-				if i not in toBeDeleted_FromData1: toBeDeleted_FromData1.append(i)
-				if j not in toBeDeleted_FromData2: toBeDeleted_FromData2.append(j)
-				# break
-	if not silent: print()
+					if i not in toBeDeleted_FromData1: toBeDeleted_FromData1.append(i)
+					if j not in toBeDeleted_FromData2: toBeDeleted_FromData2.append(j)
+					# break
+		if not silent: print()
 
-	if not silent: print('Term Matching [PASS 1]: '+str(len(returnDataFrame))+' matches found.')
-	# Remove Paired Terms on Pass 1 before Pass 2
-	data1_Ids = data1_Ids.drop(toBeDeleted_FromData1)
-	data1_Ids.reset_index(inplace=True, drop=True)
-	data1_Names = data1_Names.drop(toBeDeleted_FromData1)
-	data1_Names.reset_index(inplace=True, drop=True)
-	data2_Ids = data2_Ids.drop(toBeDeleted_FromData2)
-	data2_Ids.reset_index(inplace=True, drop=True)
-	data2_Names = data2_Names.drop(toBeDeleted_FromData2)
-	data2_Names.reset_index(inplace=True, drop=True)
-	toBeDeleted_FromData1 = toBeDeleted_FromData2 = []
+		if not silent: print('Term Matching [PASS 1]: '+str(len(returnDataFrame))+' matches found.')
+		# Remove Paired Terms on Pass 1 before Pass 2
+		data1_Ids = data1_Ids.drop(toBeDeleted_FromData1)
+		data1_Ids.reset_index(inplace=True, drop=True)
+		data1_Names = data1_Names.drop(toBeDeleted_FromData1)
+		data1_Names.reset_index(inplace=True, drop=True)
+		data2_Ids = data2_Ids.drop(toBeDeleted_FromData2)
+		data2_Ids.reset_index(inplace=True, drop=True)
+		data2_Names = data2_Names.drop(toBeDeleted_FromData2)
+		data2_Names.reset_index(inplace=True, drop=True)
+		toBeDeleted_FromData1 = toBeDeleted_FromData2 = []
 
-	# Results Structure
-	resultsVector = [0] * len(data1_Names)
-	indexVector = [-1] * len(data1_Names)
+		# Results Structure
+		resultsVector = [0] * len(data1_Names)
+		indexVector = [-1] * len(data1_Names)
+
+	return true
 
 	# PASS2 -> Iterate Cheking - Tokens
 	for i in range(len(data1_Names)):
